@@ -10,7 +10,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface VoucherOrdersMapper {
 
-
     // 根据食客 ID 和秒杀 ID 查询代金券订单
     @Select("select id, order_no, fk_voucher_id, fk_diner_id, qrcode, payment," +
             " status, fk_seckill_id, order_type, create_date, update_date, " +
@@ -27,4 +26,3 @@ public interface VoucherOrdersMapper {
     int save(VoucherOrders voucherOrders);
 
 }
-
