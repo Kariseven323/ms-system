@@ -11,6 +11,12 @@ spring:
           enabled: true # 开启配置注册中心进行路由功能
           lower-case-service-id: true # 将服务名称转小写
       routes:
+        - id: ms-seckill
+          uri: lb://ms-seckill
+          predicates:
+            - Path=/seckill/**
+          filters:
+            - StripPrefix
         - id: ms-diners
           uri: lb://ms-diners
           predicates:

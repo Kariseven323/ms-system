@@ -22,5 +22,12 @@ public interface SeckillVouchersMapper {
             " values (#{fkVoucherId}, #{amount}, #{startTime}, #{endTime}, 1, now(), now())")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int save(SeckillVouchers seckillVouchers);
+
+    /**
+     * 减库存
+     */
+    @Update("update t_seckill_vouchers set amount = amount - 1 " +
+            " where id = #{seckillId}")
+    int stockDecrease(@Param("seckillId") int seckillId);
 }
 

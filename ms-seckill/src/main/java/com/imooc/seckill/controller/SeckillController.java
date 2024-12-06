@@ -32,5 +32,9 @@ public class SeckillController {
         seckillService.addSeckillVouchers(seckillVouchers);
         return ResultInfoUtil.buildSuccess(request.getServletPath(),"添加成功");
     }
+    @PostMapping("{voucherId}")
+    public ResultInfo<String> doSeckill(@PathVariable Integer voucherId, String access_token) {
+        return seckillService.doSeckill(voucherId, access_token, request.getServletPath());
+    }
 }
 
