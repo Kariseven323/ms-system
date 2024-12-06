@@ -62,10 +62,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 // 客户端访问范围
                 .scopes(clientOAuth2DataConfiguration.getScopes());
     }
-
-    /**
-     * 配置授权以及令牌的访问端点和令牌服务
-     */
+//
+//    /**
+//     * 配置授权以及令牌的访问端点和令牌服务
+//     */
 //    @Override
 //    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 //        // 认证器
@@ -75,7 +75,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //                // token 存储的方式：Redis
 //                .tokenStore(redisTokenStore);
 //    }
-
+//
     /**
      * 配置令牌端点安全约束
      */
@@ -100,14 +100,19 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .tokenStore(redisTokenStore)
                 // 令牌增强对象，增强返回的结果
                 .tokenEnhancer((accessToken, authentication) -> {
-                    // 获取登录用户的信息，然后设置
-                    SignInIdentity signInIdentity = (SignInIdentity) authentication.getPrincipal();
-                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                    map.put("nickname", signInIdentity.getNickname());
-                    map.put("avatarUrl", signInIdentity.getAvatarUrl());
-                    DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
-                    token.setAdditionalInformation(map);
-                    return token;
+                    Object principal = authentication.getPrincipal();
+                    if (principal instanceof SignInIdentity) {
+                        // 获取登录用户的信息并设置
+                        SignInIdentity signInIdentity = (SignInIdentity) principal;
+                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                        map.put("nickname", signInIdentity.getNickname());
+                        map.put("avatarUrl", signInIdentity.getAvatarUrl());
+                        DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
+                        token.setAdditionalInformation(map);
+                        return token;
+                    }
+                    // 如果是其他类型的用户（例如 Spring Security 默认的 User），做默认处理
+                    return accessToken;
                 });
     }
 
