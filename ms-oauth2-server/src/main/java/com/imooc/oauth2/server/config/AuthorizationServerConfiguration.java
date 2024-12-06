@@ -90,31 +90,54 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     /**
      * 配置授权以及令牌的访问端点和令牌服务
      */
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        // 认证器
-        endpoints.authenticationManager(authenticationManager)
-                // 刷新令牌必须配置userDetailsService，用来刷新令牌时的认证
-                .userDetailsService(userService)
-                // token 存储的方式：Redis
-                .tokenStore(redisTokenStore)
-                // 令牌增强对象，增强返回的结果
-                .tokenEnhancer((accessToken, authentication) -> {
-                    Object principal = authentication.getPrincipal();
-                    if (principal instanceof SignInIdentity) {
-                        // 获取登录用户的信息并设置
-                        SignInIdentity signInIdentity = (SignInIdentity) principal;
-                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                        map.put("nickname", signInIdentity.getNickname());
-                        map.put("avatarUrl", signInIdentity.getAvatarUrl());
-                        DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
-                        token.setAdditionalInformation(map);
-                        return token;
-                    }
-                    // 如果是其他类型的用户（例如 Spring Security 默认的 User），做默认处理
-                    return accessToken;
-                });
-    }
+//    @Override
+//    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+//        // 认证器
+//        endpoints.authenticationManager(authenticationManager)
+//                // 刷新令牌必须配置userDetailsService，用来刷新令牌时的认证
+//                .userDetailsService(userService)
+//                // token 存储的方式：Redis
+//                .tokenStore(redisTokenStore)
+//                // 令牌增强对象，增强返回的结果
+//                .tokenEnhancer((accessToken, authentication) -> {
+//                    Object principal = authentication.getPrincipal();
+//                    if (principal instanceof SignInIdentity) {
+//                        // 获取登录用户的信息并设置
+//                        SignInIdentity signInIdentity = (SignInIdentity) principal;
+//                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+//                        map.put("nickname", signInIdentity.getNickname());
+//                        map.put("avatarUrl", signInIdentity.getAvatarUrl());
+//                        DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
+//                        token.setAdditionalInformation(map);
+//                        return token;
+//                    }
+//                    // 如果是其他类型的用户（例如 Spring Security 默认的 User），做默认处理
+//                    return accessToken;
+//                });
+
+        @Override
+        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+            // 认证器
+            endpoints.authenticationManager(authenticationManager)
+                    // 具体登录的方法
+                    .userDetailsService(userService)
+                    // token 存储的方式：Redis
+                    .tokenStore(redisTokenStore)
+                    // 令牌增强对象，增强返回的结果
+                    .tokenEnhancer((accessToken, authentication) -> {
+                        Object principal = authentication.getPrincipal();
+                        if (principal instanceof SignInIdentity) {
+                            SignInIdentity signInIdentity = (SignInIdentity) principal;
+                            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                            map.put("nickname", signInIdentity.getNickname());
+                            map.put("avatarUrl", signInIdentity.getAvatarUrl());
+                            DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
+                            token.setAdditionalInformation(map);
+                            return token;
+                        }
+                        return accessToken;
+                    });
+        }
 
 }
 
