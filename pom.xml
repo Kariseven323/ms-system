@@ -14,7 +14,9 @@
         <module>commons</module>
         <module>ms-registry</module>
         <module>ms-oauth2-server</module>
-        <module>ms-dinners</module>
+        <module>ms-diners</module>
+        <module>ms-gateway</module>
+        <module>ms-seckill</module>
     </modules>
 
     <!-- 可以集中定义依赖资源的版本信息 -->
