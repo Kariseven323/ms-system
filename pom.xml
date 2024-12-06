@@ -10,12 +10,11 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>ms-registry</module>
-<!--        <module>ms-gateway</module>-->
-<!--        <module>ms-diners</module>-->
         <module>ms-oauth2-server</module>
         <module>commons</module>
         <module>ms-registry</module>
         <module>ms-oauth2-server</module>
+        <module>ms-dinners</module>
     </modules>
 
     <!-- 可以集中定义依赖资源的版本信息 -->
