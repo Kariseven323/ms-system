@@ -17,4 +17,5 @@ public class BaseModel implements Serializable {
     private Date createDate;
     private Date updateDate;
     private int isValid;
+
 }

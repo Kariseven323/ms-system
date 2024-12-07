@@ -25,15 +25,11 @@ public class HandleException {
     private ObjectMapper objectMapper;
 
     public Mono<Void> writeError(ServerWebExchange exchange, String error) {
-
         ServerHttpResponse response = exchange.getResponse();
         ServerHttpRequest request = exchange.getRequest();
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-
-        // 用户没有登录，请登录
         ResultInfo resultInfo = ResultInfoUtil.buildError(ApiConstant.NO_LOGIN_CODE, ApiConstant.NO_LOGIN_MESSAGE, request.getURI().getPath());
-
         String resultInfoJson = null;
         DataBuffer buffer = null;
         try {
@@ -45,5 +41,5 @@ public class HandleException {
 
         return response.writeWith(Mono.just(buffer));
     }
-}
 
+}

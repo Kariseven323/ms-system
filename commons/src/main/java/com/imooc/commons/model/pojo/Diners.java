@@ -1,5 +1,6 @@
 package com.imooc.commons.model.pojo;
 
+
 import com.imooc.commons.model.base.BaseModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,4 +30,3 @@ public class Diners extends BaseModel {
     private String roles;
 
 }
-

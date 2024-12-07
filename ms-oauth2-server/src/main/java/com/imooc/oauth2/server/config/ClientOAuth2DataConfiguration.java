@@ -1,8 +1,9 @@
 package com.imooc.oauth2.server.config;
 
-import org.springframework.stereotype.Component;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
 /**
  * 客户端配置类
  */
@@ -28,4 +29,5 @@ public class ClientOAuth2DataConfiguration {
 
     // 客户端访问范围
     private String[] scopes;
+
 }

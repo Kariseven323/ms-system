@@ -1,5 +1,6 @@
 package com.imooc.commons.utils;
 
+
 import com.imooc.commons.constant.ApiConstant;
 import com.imooc.commons.model.domain.ResultInfo;
 

@@ -52,7 +52,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (flag) {
             return chain.filter(exchange);
         }
-
         // 获取 access_token
         String access_token = exchange.getRequest().getQueryParams().getFirst("access_token");
         // 判断 access_token 是否为空
@@ -83,10 +82,12 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     /**
      * 网关过滤器的排序，数字越小优先级越高
+     *
+     * @return
      */
     @Override
     public int getOrder() {
         return 0;
     }
-}
 
+}

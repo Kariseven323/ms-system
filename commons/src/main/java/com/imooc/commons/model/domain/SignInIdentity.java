@@ -1,20 +1,26 @@
 package com.imooc.commons.model.domain;
 
-import com.google.common.collect.Lists;
-import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-@Data
+/**
+ * 登录认证对象
+ */
+@Getter
+@Setter
 public class SignInIdentity implements UserDetails {
+
     // 主键
     private Integer id;
     // 用户名
@@ -42,7 +48,9 @@ public class SignInIdentity implements UserDetails {
         if (StrUtil.isNotBlank(this.roles)) {
             // 获取数据库中的角色信息
             Lists.newArrayList();
-            this.authorities = Stream.of(this.roles.split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            this.authorities = Stream.of(this.roles.split(",")).map(role -> {
+                return new SimpleGrantedAuthority(role);
+            }).collect(Collectors.toList());
         } else {
             // 如果角色为空则设置为 ROLE_USER
             this.authorities = AuthorityUtils
@@ -75,5 +83,5 @@ public class SignInIdentity implements UserDetails {
     public boolean isEnabled() {
         return this.isValid == 0 ? false : true;
     }
-}
 
+}

@@ -17,8 +17,8 @@ import javax.annotation.Resource;
 import java.util.LinkedHashMap;
 
 /**
- * 授权服务器配置类
- **/
+ * 授权服务
+ */
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
@@ -26,58 +26,25 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     // RedisTokenSore
     @Resource
     private RedisTokenStore redisTokenStore;
-
     // 认证管理对象
     @Resource
     private AuthenticationManager authenticationManager;
-
     // 密码编码器
     @Resource
     private PasswordEncoder passwordEncoder;
-
     // 客户端配置类
     @Resource
     private ClientOAuth2DataConfiguration clientOAuth2DataConfiguration;
-
     // 登录校验
     @Resource
     private UserService userService;
 
-    /**
-     * 客户端配置 - 授权模型
-     */
-    @Override
-    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.inMemory()
-                // 客户端标识 ID
-                .withClient(clientOAuth2DataConfiguration.getClientId())
-                // 客户端安全码
-                .secret(passwordEncoder.encode(clientOAuth2DataConfiguration.getSecret()))
-                // 授权类型
-                .authorizedGrantTypes(clientOAuth2DataConfiguration.getGrantTypes())
-                // token 有效期
-                .accessTokenValiditySeconds(clientOAuth2DataConfiguration.getTokenValidityTime())
-                // 刷新 token 的有效期
-                .refreshTokenValiditySeconds(clientOAuth2DataConfiguration.getRefreshTokenValidityTime())
-                // 客户端访问范围
-                .scopes(clientOAuth2DataConfiguration.getScopes());
-    }
-//
-//    /**
-//     * 配置授权以及令牌的访问端点和令牌服务
-//     */
-//    @Override
-//    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//        // 认证器
-//        endpoints.authenticationManager(authenticationManager)
-//                // 刷新令牌必须配置userDetailsService，用来刷新令牌时的认证
-//                .userDetailsService(userService)
-//                // token 存储的方式：Redis
-//                .tokenStore(redisTokenStore);
-//    }
-//
+
     /**
      * 配置令牌端点安全约束
+     *
+     * @param security
+     * @throws Exception
      */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -88,57 +55,46 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     /**
-     * 配置授权以及令牌的访问端点和令牌服务
+     * 客户端配置 - 授权模型
+     *
+     * @param clients
+     * @throws Exception
      */
-//    @Override
-//    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//        // 认证器
-//        endpoints.authenticationManager(authenticationManager)
-//                // 刷新令牌必须配置userDetailsService，用来刷新令牌时的认证
-//                .userDetailsService(userService)
-//                // token 存储的方式：Redis
-//                .tokenStore(redisTokenStore)
-//                // 令牌增强对象，增强返回的结果
-//                .tokenEnhancer((accessToken, authentication) -> {
-//                    Object principal = authentication.getPrincipal();
-//                    if (principal instanceof SignInIdentity) {
-//                        // 获取登录用户的信息并设置
-//                        SignInIdentity signInIdentity = (SignInIdentity) principal;
-//                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-//                        map.put("nickname", signInIdentity.getNickname());
-//                        map.put("avatarUrl", signInIdentity.getAvatarUrl());
-//                        DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
-//                        token.setAdditionalInformation(map);
-//                        return token;
-//                    }
-//                    // 如果是其他类型的用户（例如 Spring Security 默认的 User），做默认处理
-//                    return accessToken;
-//                });
+    @Override
+    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        clients.inMemory().withClient(clientOAuth2DataConfiguration.getClientId()) // 客户端标识 ID
+                .secret(passwordEncoder.encode(clientOAuth2DataConfiguration.getSecret())) // 客户端安全码
+                .authorizedGrantTypes(clientOAuth2DataConfiguration.getGrantTypes()) // 授权类型
+                .accessTokenValiditySeconds(clientOAuth2DataConfiguration.getTokenValidityTime()) // token 有效期
+                .refreshTokenValiditySeconds(clientOAuth2DataConfiguration.getRefreshTokenValidityTime()) // 刷新 token 的有效期
+                .scopes(clientOAuth2DataConfiguration.getScopes()); // 客户端访问范围
+    }
 
-        @Override
-        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-            // 认证器
-            endpoints.authenticationManager(authenticationManager)
-                    // 具体登录的方法
-                    .userDetailsService(userService)
-                    // token 存储的方式：Redis
-                    .tokenStore(redisTokenStore)
-                    // 令牌增强对象，增强返回的结果
-                    .tokenEnhancer((accessToken, authentication) -> {
-                        Object principal = authentication.getPrincipal();
-                        if (principal instanceof SignInIdentity) {
-                            SignInIdentity signInIdentity = (SignInIdentity) principal;
-                            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                            map.put("nickname", signInIdentity.getNickname());
-                            map.put("avatarUrl", signInIdentity.getAvatarUrl());
-                            DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
-                            token.setAdditionalInformation(map);
-                            return token;
-                        }
-                        return accessToken;
-                    });
-        }
+    /**
+     * 配置授权以及令牌的访问端点和令牌服务
+     *
+     * @param endpoints
+     * @throws Exception
+     */
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        // 认证器
+        endpoints.authenticationManager(authenticationManager)
+                // 具体登录的方法
+                .userDetailsService(userService)
+                // token 存储的方式：Redis
+                .tokenStore(redisTokenStore)
+                // 令牌增强对象，增强返回的结果
+                .tokenEnhancer((accessToken, authentication) -> {
+                    // 获取登录用户的信息，然后设置
+                    SignInIdentity signInIdentity = (SignInIdentity) authentication.getPrincipal();
+                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                    map.put("nickname", signInIdentity.getNickname());
+                    map.put("avatarUrl", signInIdentity.getAvatarUrl());
+                    DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
+                    token.setAdditionalInformation(map);
+                    return token;
+                });
+    }
 
 }
-
-

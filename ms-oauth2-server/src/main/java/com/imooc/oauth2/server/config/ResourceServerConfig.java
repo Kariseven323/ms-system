@@ -22,9 +22,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         // 配置放行的资源
         http.authorizeRequests()
-                .anyRequest().authenticated()
+                .anyRequest()
+                .authenticated()
                 .and()
-                .requestMatchers().antMatchers("/user/**");
+                .requestMatchers()
+                .antMatchers("/user/**");
     }
 
     @Override
@@ -33,4 +35,3 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     }
 
 }
-

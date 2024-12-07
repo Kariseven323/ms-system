@@ -38,6 +38,9 @@ public class OAuthController {
 
     /**
      * 自定义 Token 返回对象
+     *
+     * @param accessToken
+     * @return
      */
     private ResultInfo custom(OAuth2AccessToken accessToken) {
         DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
@@ -50,4 +53,5 @@ public class OAuthController {
         }
         return ResultInfoUtil.buildSuccess(request.getServletPath(), data);
     }
+
 }

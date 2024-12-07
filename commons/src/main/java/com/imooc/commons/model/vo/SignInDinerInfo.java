@@ -28,4 +28,3 @@ public class SignInDinerInfo implements Serializable {
     private String roles;
 
 }
-

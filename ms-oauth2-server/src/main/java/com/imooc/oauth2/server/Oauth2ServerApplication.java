@@ -6,8 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @MapperScan("com.imooc.oauth2.server.mapper")
 @SpringBootApplication
-public class Oauth2Application {
+public class Oauth2ServerApplication {
+
     public static void main(String[] args) {
-        SpringApplication.run(Oauth2Application.class, args);
+        SpringApplication.run(Oauth2ServerApplication.class, args);
     }
+
 }
