@@ -189,8 +189,7 @@ public class SeckillService {
         // seckillVouchersMapper.save(seckillVouchers);
 
         // 采用 Redis 实现
-        String key = RedisKeyConstant.seckill_vouchers.getKey() +
-                seckillVouchers.getFkVoucherId();
+        String key = RedisKeyConstant.seckill_vouchers.getKey() + seckillVouchers.getFkVoucherId();
         // 验证 Redis 中是否已经存在该券的秒杀活动
         Map<String, Object> map = redisTemplate.opsForHash().entries(key);
         AssertUtil.isTrue(!map.isEmpty() && (int) map.get("amount") > 0, "该券已经拥有了抢购活动");
