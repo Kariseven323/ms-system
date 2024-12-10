@@ -16,5 +16,7 @@ public enum RedisKeyConstant {
         this.key = key;
         this.desc = desc;
     }
-
+    public String getKey() {
+        return key;
+    }
 }

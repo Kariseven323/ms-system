@@ -19,6 +19,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -199,6 +200,82 @@ public class SeckillService {
         seckillVouchers.setCreateDate(now);
         seckillVouchers.setUpdateDate(now);
         redisTemplate.opsForHash().putAll(key, BeanUtil.beanToMap(seckillVouchers));
+    }
+
+    @Scheduled(fixedRate = 60000) // 每隔60秒执行一次
+    public void syncRedisToDatabase() {
+        // 获取所有 Redis 中的秒杀活动键名
+        Set<String> keys = redisTemplate.keys(RedisKeyConstant.seckill_vouchers.getKey() + "*");
+
+        if (keys == null || keys.isEmpty()) {
+            return; // 无秒杀活动，无需同步
+        }
+
+        for (String key : keys) {
+            // 从 Redis 获取代金券数据
+            Map<String, Object> map = redisTemplate.opsForHash().entries(key);
+            if (map.isEmpty()) {
+                continue; // 跳过无数据的活动
+            }
+
+            // 将 Redis 数据转换为 SeckillVouchers 对象
+            SeckillVouchers seckillVouchers = BeanUtil.mapToBean(map, SeckillVouchers.class, true, null);
+
+            try {
+                // 查询数据库中是否已有该活动
+                SeckillVouchers existing = seckillVouchersMapper.selectVoucher(seckillVouchers.getFkVoucherId());
+                if (existing == null) {
+                    // 如果数据库中没有该活动，则插入
+                    seckillVouchersMapper.save(seckillVouchers);
+                } else {
+                    // 如果数据库中已有该活动，则更新
+                    seckillVouchersMapper.update(seckillVouchers);
+                }
+            } catch (Exception e) {
+                // 记录错误日志，避免定时任务中断
+                System.err.println("同步代金券数据出错：" + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 修改秒杀活动
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateSeckillVouchers(SeckillVouchers seckillVouchers) {
+        // 校验参数
+        AssertUtil.isTrue(seckillVouchers.getFkVoucherId() == null, "请选择需要修改的代金券");
+        AssertUtil.isTrue(seckillVouchers.getAmount() < 0, "库存不能小于0");
+        // 更新秒杀活动
+        int result = seckillVouchersMapper.update(seckillVouchers);
+        AssertUtil.isTrue(result == 0, "修改秒杀活动失败");
+    }
+
+    /**
+     * 查询秒杀活动
+     */
+    public SeckillVouchers querySeckillVoucher(Integer voucherId) {
+        AssertUtil.isTrue(voucherId == null, "代金券ID不能为空");
+        SeckillVouchers seckillVouchers = seckillVouchersMapper.selectVoucher(voucherId);
+        AssertUtil.isTrue(seckillVouchers == null, "秒杀活动不存在");
+        return seckillVouchers;
+    }
+
+    /**
+     * 删除秒杀活动
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteSeckillVoucher(Integer voucherId) {
+        AssertUtil.isTrue(voucherId == null, "代金券ID不能为空");
+
+        // 删除 MySQL 中的秒杀活动
+        int result = seckillVouchersMapper.deleteByVoucherId(voucherId);
+        AssertUtil.isTrue(result == 0, "删除秒杀活动失败");
+
+        // 删除 Redis 中的相关数据
+        String redisKey = RedisKeyConstant.seckill_vouchers.getKey() + voucherId;
+        Boolean isDeleted = redisTemplate.delete(redisKey);
+        AssertUtil.isTrue(isDeleted, "删除 Redis 中的秒杀活动成功");
     }
 
 }
