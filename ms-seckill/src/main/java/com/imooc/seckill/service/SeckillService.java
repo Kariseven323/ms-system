@@ -278,4 +278,41 @@ public class SeckillService {
         AssertUtil.isTrue(isDeleted, "删除 Redis 中的秒杀活动成功");
     }
 
+    // 批量新增秒杀活动
+    public ResultInfo<String> addSeckillVouchersBatch(List<SeckillVouchers> seckillVouchersList) {
+        if (seckillVouchersList == null || seckillVouchersList.isEmpty()) {
+            return ResultInfoUtil.buildError("传入的秒杀活动列表为空");
+        }
+
+        int batchSize = 500; // 每批次插入 500 条
+        int total = seckillVouchersList.size();
+        int pages = (total + batchSize - 1) / batchSize; // 计算总页数
+
+        Date now = new Date(); // 提前创建时间对象，避免重复调用
+
+        for (int i = 0; i < pages; i++) {
+            int fromIndex = i * batchSize;
+            int toIndex = Math.min((i + 1) * batchSize, total);
+            List<SeckillVouchers> batchList = seckillVouchersList.subList(fromIndex, toIndex);
+
+            // 为每个秒杀活动对象设置必要的字段
+            batchList.forEach(seckillVouchers -> {
+                seckillVouchers.setIsValid(1); // 设置有效状态
+                seckillVouchers.setCreateDate(now); // 设置创建时间
+                seckillVouchers.setUpdateDate(now); // 设置更新时间
+            });
+
+            // 插入当前批次数据
+            seckillVouchersMapper.saveBatch(batchList);
+
+            // 插入到 Redis
+            batchList.forEach(seckillVouchers -> {
+                String key = RedisKeyConstant.seckill_vouchers.getKey() + seckillVouchers.getFkVoucherId();
+                Map<String, Object> redisData = BeanUtil.beanToMap(seckillVouchers);
+                redisTemplate.opsForHash().putAll(key, redisData);
+            });
+        }
+
+        return ResultInfoUtil.buildSuccess("批量添加秒杀活动成功");
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 秒杀控制层
@@ -38,6 +39,14 @@ public class SeckillController {
     public ResultInfo<String> addSeckillVouchers(@RequestBody SeckillVouchers seckillVouchers) {
         seckillService.addSeckillVouchers(seckillVouchers);
         return ResultInfoUtil.buildSuccess(request.getServletPath(), "添加秒杀活动成功");
+    }
+
+    /**
+     * 批量新增秒杀活动
+     */
+    @PostMapping("/addBatch")
+    public ResultInfo<String> addSeckillVouchersBatch(@RequestBody List<SeckillVouchers> seckillVouchersList) {
+        return seckillService.addSeckillVouchersBatch(seckillVouchersList);
     }
 
     /**

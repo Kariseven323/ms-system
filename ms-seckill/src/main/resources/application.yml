@@ -32,6 +32,8 @@ eureka:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true # 开启驼峰映射
+  mapper-locations: classpath:SeckillVouchersMapper.xml
+  type-aliases-package: com.imooc.commons.model.pojo.entity
 
 service:
   name:

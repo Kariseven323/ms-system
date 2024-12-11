@@ -42,5 +42,4 @@ public class OAuthControllerTest extends OAuth2ServerApplicationTests {
 
         Files.write(Paths.get("tokens.txt"), tokens.toString().getBytes());
     }
-
 }

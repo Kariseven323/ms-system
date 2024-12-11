@@ -41,10 +41,12 @@ secure:
       - /diners/send
       - /diners/checkPhone
       - /diners/register
+      - /seckill/addbath
       - /seckill/add
-      - /seckill/query
-      - /seckill/delete
-      - /seckill/update
+      - /seckill/query/**
+      - /seckill/delete/**
+      - /seckill/update/**
+      - /seckill/**
 
 # 配置 Eureka Server 注册中心
 eureka:
