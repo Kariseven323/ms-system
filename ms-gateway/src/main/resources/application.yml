@@ -29,8 +29,6 @@ spring:
           uri: lb://ms-seckill
           predicates:
             - Path=/seckill/**
-          filters:
-            - StripPrefix=1
 
 secure:
   ignore:
